@@ -14,7 +14,7 @@ Usage
 Usage: cram input_dir output_dir atlas_name [--padding padding_value] [--notrim] [--dimension max_dimension]
 ```
 
-Cram expects input in PNG and outputs a PNG and a metadata file that you can use to properly display the images in your game. Cram will recursively walk all the subdirectories of `input_dir` to generate your texture atlas.
+Cram expects input in PNG and outputs a PNG and a JSON metadata file that you can use to properly display the images in your game. Cram will recursively walk all the subdirectories of `input_dir` to generate your texture atlas.
 
 Padding is set to 0 by default. If you need to use linear filtering, set padding to at least 1. If you need to use texture compression, set padding to at least 4.
 
