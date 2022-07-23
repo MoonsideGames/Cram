@@ -46,19 +46,6 @@
 
 #endif /* _MSC_VER */
 
-/* TODO: ifndefs here? */
-#define Cram_assert assert
-#define Cram_qsort qsort
-#define Cram_malloc malloc
-#define Cram_realloc realloc
-#define Cram_free free
-#define Cram_memcpy memcpy
-#define Cram_memset memset
-#define Cram_strdup strdup
-#define Cram_abs abs
-#define Cram_min min
-#define Cram_max max
-
 #ifdef _WIN32
 #define SEPARATOR '\\'
 #endif
@@ -90,7 +77,7 @@ typedef struct Cram_Context Cram_Context;
 
 typedef struct Cram_ContextCreateInfo
 {
-	const char *name;
+	char *name;
 	uint32_t maxDimension;
 	int32_t padding;
 	uint8_t trim;
@@ -119,8 +106,8 @@ CRAMAPI void Cram_AddFile(Cram_Context *context, const char *path);
 
 CRAMAPI int8_t Cram_Pack(Cram_Context *context);
 
-CRAMAPI void Cram_GetPixelData(Cram_Context *context, uint8_t **pPixelData, uint32_t *pWidth, uint32_t *pHeight);
-CRAMAPI void Cram_GetMetadata(Cram_Context *context, Cram_ImageData **pImage, uint32_t *pImageCount);
+CRAMAPI void Cram_GetPixelData(Cram_Context *context, uint8_t **pPixelData, int32_t *pWidth, int32_t *pHeight);
+CRAMAPI void Cram_GetMetadata(Cram_Context *context, Cram_ImageData **pImage, int32_t *pImageCount);
 
 CRAMAPI void Cram_Destroy(Cram_Context *context);
 

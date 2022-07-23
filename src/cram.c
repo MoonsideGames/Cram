@@ -26,10 +26,10 @@
 
 #include "cram.h"
 
-#define STBI_ASSERT Cram_assert
-#define STBI_MALLOC Cram_malloc
-#define STBI_REALLOC Cram_realloc
-#define STBI_FREE Cram_free
+#define STBI_ASSERT assert
+#define STBI_MALLOC malloc
+#define STBI_REALLOC realloc
+#define STBI_FREE free
 
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
@@ -68,9 +68,9 @@ struct Cram_Image
 
 typedef struct Cram_Internal_Context
 {
-	const char *name;
-	uint32_t width;
-	uint32_t height;
+	char *name;
+	int32_t width;
+	int32_t height;
 
 	int32_t padding;
 	uint8_t trim;
@@ -78,17 +78,17 @@ typedef struct Cram_Internal_Context
 	uint8_t *pixels;
 
 	Cram_Image **images;
-	uint32_t imageCount;
-	uint32_t imageCapacity;
+	int32_t imageCount;
+	int32_t imageCapacity;
 
 	Cram_ImageData *imageDatas;
-	uint32_t imageDataCount;
+	int32_t imageDataCount;
 } Cram_Internal_Context;
 
 typedef struct RectPackContext
 {
-	uint32_t width;
-	uint32_t height;
+	int32_t width;
+	int32_t height;
 
 	Rect *freeRectangles;
 	int32_t freeRectangleCount;
@@ -141,12 +141,12 @@ static uint8_t Cram_Internal_IsImageEqual(Cram_Image *a, Cram_Image *b)
 	return 0;
 }
 
-static inline uint32_t Cram_Internal_GetPixelIndex(uint32_t x, uint32_t y, uint32_t width)
+static inline int32_t Cram_Internal_GetPixelIndex(int32_t x, int32_t y, int32_t width)
 {
 	return x + y * width;
 }
 
-static uint8_t Cram_Internal_IsRowClear(uint32_t* pixels, uint32_t rowIndex, uint32_t width)
+static uint8_t Cram_Internal_IsRowClear(int32_t* pixels, int32_t rowIndex, int32_t width)
 {
 	int32_t i;
 
@@ -161,7 +161,7 @@ static uint8_t Cram_Internal_IsRowClear(uint32_t* pixels, uint32_t rowIndex, uin
 	return 1;
 }
 
-static uint8_t Cram_Internal_IsColumnClear(uint32_t* pixels, uint32_t columnIndex, uint32_t width, uint32_t height)
+static uint8_t Cram_Internal_IsColumnClear(int32_t* pixels, int32_t columnIndex, int32_t width, int32_t height)
 {
 	int32_t i;
 
@@ -210,13 +210,13 @@ static int8_t Cram_Internal_CopyPixels(
 
 RectPackContext* Cram_Internal_InitRectPacker(uint32_t width, uint32_t height)
 {
-	RectPackContext *context = Cram_malloc(sizeof(RectPackContext));
+	RectPackContext *context = malloc(sizeof(RectPackContext));
 
 	context->width = width;
 	context->height = height;
 
 	context->freeRectangleCapacity = INITIAL_FREE_RECTANGLE_CAPACITY;
-	context->freeRectangles = Cram_malloc(sizeof(Rect) * context->freeRectangleCapacity);
+	context->freeRectangles = malloc(sizeof(Rect) * context->freeRectangleCapacity);
 
 	context->freeRectangles[0].x = 0;
 	context->freeRectangles[0].y = 0;
@@ -225,7 +225,7 @@ RectPackContext* Cram_Internal_InitRectPacker(uint32_t width, uint32_t height)
 	context->freeRectangleCount = 1;
 
 	context->newFreeRectangleCapacity = INITIAL_FREE_RECTANGLE_CAPACITY;
-	context->newFreeRectangles = Cram_malloc(sizeof(Rect) * context->freeRectangleCapacity);
+	context->newFreeRectangles = malloc(sizeof(Rect) * context->freeRectangleCapacity);
 	context->newFreeRectangleCount = 0;
 
 	return context;
@@ -254,7 +254,7 @@ void Cram_Internal_Score(
 		if (freeRect->w >= width && freeRect->h >= height)
 		{
 			areaFit = freeRect->w * freeRect->h - width * height;
-			shortestSide = Cram_min(freeRect->w - width, freeRect->h - height);
+			shortestSide = min(freeRect->w - width, freeRect->h - height);
 
 			if (areaFit < scoreInfo->score || (areaFit == scoreInfo->score && shortestSide < scoreInfo->secondaryScore))
 			{
@@ -295,8 +295,8 @@ void Cram_Internal_PruneRects(RectPackContext* context)
 
 	if (context->freeRectangleCapacity < context->freeRectangleCount + context->newFreeRectangleCount)
 	{
-		context->freeRectangleCapacity = Cram_max(context->freeRectangleCapacity * 2, context->freeRectangleCount + context->newFreeRectangleCount);
-		context->freeRectangles = Cram_realloc(context->freeRectangles, sizeof(Rect) * context->freeRectangleCapacity);
+		context->freeRectangleCapacity = max(context->freeRectangleCapacity * 2, context->freeRectangleCount + context->newFreeRectangleCount);
+		context->freeRectangles = realloc(context->freeRectangles, sizeof(Rect) * context->freeRectangleCapacity);
 	}
 
 	for (i = 0; i < context->newFreeRectangleCount; i += 1)
@@ -329,7 +329,7 @@ static inline void Cram_Internal_AddNewFreeRect(RectPackContext *context, Rect r
 	if (context->newFreeRectangleCount == context->newFreeRectangleCapacity)
 	{
 		context->newFreeRectangleCapacity *= 2;
-		context->newFreeRectangles = Cram_realloc(context->newFreeRectangles, sizeof(Rect) * context->newFreeRectangleCapacity);
+		context->newFreeRectangles = realloc(context->newFreeRectangles, sizeof(Rect) * context->newFreeRectangleCapacity);
 	}
 
 	context->newFreeRectangles[context->newFreeRectangleCount] = rect;
@@ -416,9 +416,9 @@ void Cram_Internal_PlaceRect(RectPackContext *context, Rect *rect)
 }
 
 /* Given rects with width and height, modifies rects with packed x and y positions. */
-int8_t Cram_Internal_PackRects(RectPackContext *context, Rect *rects, uint32_t numRects)
+int8_t Cram_Internal_PackRects(RectPackContext *context, Rect *rects, int32_t numRects)
 {
-	Rect **rectsToPack = Cram_malloc(sizeof(Rect*) * numRects);
+	Rect **rectsToPack = malloc(sizeof(Rect*) * numRects);
 	int32_t rectsToPackCount = numRects;
 	Rect *rectPtr;
 	int32_t bestScore = INT32_MAX;
@@ -468,7 +468,7 @@ int8_t Cram_Internal_PackRects(RectPackContext *context, Rect *rects, uint32_t n
 		rectsToPackCount -= 1;
 	}
 
-	Cram_free(rectsToPack);
+	free(rectsToPack);
 	return 0;
 }
 
@@ -481,9 +481,9 @@ uint32_t Cram_LinkedVersion(void)
 
 Cram_Context* Cram_Init(Cram_ContextCreateInfo *createInfo)
 {
-	Cram_Internal_Context *context = Cram_malloc(sizeof(Cram_Internal_Context));
+	Cram_Internal_Context *context = malloc(sizeof(Cram_Internal_Context));
 
-	context->name = Cram_strdup(createInfo->name);
+	context->name = strdup(createInfo->name);
 
 	context->width = createInfo->maxDimension;
 	context->height = createInfo->maxDimension;
@@ -491,7 +491,7 @@ Cram_Context* Cram_Init(Cram_ContextCreateInfo *createInfo)
 	context->padding = createInfo->padding;
 	context->trim = createInfo->trim;
 
-	context->images = Cram_malloc(INITIAL_DATA_CAPACITY * sizeof(Cram_Image*));
+	context->images = malloc(INITIAL_DATA_CAPACITY * sizeof(Cram_Image*));
 	context->imageCapacity = INITIAL_DATA_CAPACITY;
 	context->imageCount = 0;
 
@@ -506,7 +506,7 @@ static char* Cram_Internal_GetImageName(const char *path)
 {
 	char *lastSeparator = strrchr(path, SEPARATOR) + 1;
 	size_t returnBytes = strlen(lastSeparator) + 1;
-	char *name = Cram_malloc(returnBytes);
+	char *name = malloc(returnBytes);
 	int32_t i;
 
 	for (i = 0; i < returnBytes; i += 1)
@@ -529,10 +529,10 @@ void Cram_AddFile(Cram_Context *context, const char *path)
 	if (internalContext->imageCapacity == internalContext->imageCount)
 	{
 		internalContext->imageCapacity *= 2;
-		internalContext->images = Cram_realloc(internalContext->images, internalContext->imageCapacity * sizeof(Cram_Image*));
+		internalContext->images = realloc(internalContext->images, internalContext->imageCapacity * sizeof(Cram_Image*));
 	}
 
-	image = Cram_malloc(sizeof(Cram_Image));
+	image = malloc(sizeof(Cram_Image));
 
 	image->name = Cram_Internal_GetImageName(path);
 
@@ -603,7 +603,7 @@ void Cram_AddFile(Cram_Context *context, const char *path)
 	}
 
 	/* copy and free source pixels */
-	image->pixels = Cram_malloc(image->trimmedRect.w * image->trimmedRect.h * 4);
+	image->pixels = malloc(image->trimmedRect.w * image->trimmedRect.h * 4);
 
 	Rect dstRect;
 	dstRect.x = 0;
@@ -626,7 +626,7 @@ void Cram_AddFile(Cram_Context *context, const char *path)
 			{
 				/* this is duplicate data! */
 				image->duplicateOf = internalContext->images[i];
-				Cram_free(image->pixels);
+				free(image->pixels);
 				image->pixels = NULL;
 				break;
 			}
@@ -647,12 +647,12 @@ int8_t Cram_Pack(Cram_Context *context)
 	Rect *packerRect;
 	Rect dstRect, srcRect;
 	Cram_Image *image;
-	uint32_t maxWidth = 0;
-	uint32_t maxHeight = 0;
+	int32_t maxWidth = 0;
+	int32_t maxHeight = 0;
 	int32_t i;
 
 	internalContext->imageDataCount = internalContext->imageCount;
-	internalContext->imageDatas = Cram_realloc(internalContext->imageDatas, sizeof(Cram_ImageData) * internalContext->imageDataCount);
+	internalContext->imageDatas = realloc(internalContext->imageDatas, sizeof(Cram_ImageData) * internalContext->imageDataCount);
 
 	rectPackContext = Cram_Internal_InitRectPacker(internalContext->width, internalContext->height);
 
@@ -664,7 +664,7 @@ int8_t Cram_Pack(Cram_Context *context)
 		}
 	}
 
-	packerRects = Cram_malloc(sizeof(Rect) * numRects);
+	packerRects = malloc(sizeof(Rect) * numRects);
 
 	numRects = 0;
 	for (i = 0; i < internalContext->imageCount; i += 1)
@@ -697,8 +697,8 @@ int8_t Cram_Pack(Cram_Context *context)
 			internalContext->images[i]->packedRect.w = internalContext->images[i]->trimmedRect.w;
 			internalContext->images[i]->packedRect.h = internalContext->images[i]->trimmedRect.h;
 
-			maxWidth = Cram_max(maxWidth, packerRect->x + packerRect->w);
-			maxHeight = Cram_max(maxHeight, packerRect->y + packerRect->h);
+			maxWidth = max(maxWidth, packerRect->x + packerRect->w);
+			maxHeight = max(maxHeight, packerRect->y + packerRect->h);
 
 			numRects += 1;
 		}
@@ -707,8 +707,8 @@ int8_t Cram_Pack(Cram_Context *context)
 	internalContext->width = Cram_Internal_NextPowerOfTwo(maxWidth);
 	internalContext->height = Cram_Internal_NextPowerOfTwo(maxHeight);
 
-	internalContext->pixels = Cram_realloc(internalContext->pixels, internalContext->width * internalContext->height * 4);
-	Cram_memset(internalContext->pixels, 0, internalContext->width * internalContext->height * 4);
+	internalContext->pixels = realloc(internalContext->pixels, internalContext->width * internalContext->height * 4);
+	memset(internalContext->pixels, 0, internalContext->width * internalContext->height * 4);
 
 	for (i = 0; i < internalContext->imageCount; i += 1)
 	{
@@ -756,12 +756,12 @@ int8_t Cram_Pack(Cram_Context *context)
 		internalContext->imageDatas[i].name = strdup(internalContext->images[i]->name);
 	}
 
-	Cram_free(packerRects);
+	free(packerRects);
 
 	return 0;
 }
 
-void Cram_GetPixelData(Cram_Context *context, uint8_t **pPixels, uint32_t *pWidth, uint32_t *pHeight)
+void Cram_GetPixelData(Cram_Context *context, uint8_t **pPixels, int32_t *pWidth, int32_t *pHeight)
 {
 	Cram_Internal_Context *internalContext = (Cram_Internal_Context*) context;
 	*pPixels = internalContext->pixels;
@@ -769,7 +769,7 @@ void Cram_GetPixelData(Cram_Context *context, uint8_t **pPixels, uint32_t *pWidt
 	*pHeight = internalContext->height;
 }
 
-void Cram_GetMetadata(Cram_Context *context, Cram_ImageData **pImage, uint32_t *pImageCount)
+void Cram_GetMetadata(Cram_Context *context, Cram_ImageData **pImage, int32_t *pImageCount)
 {
 	Cram_Internal_Context *internalContext = (Cram_Internal_Context*) context;
 
@@ -784,22 +784,22 @@ void Cram_Destroy(Cram_Context *context)
 
 	if (internalContext->pixels != NULL)
 	{
-		Cram_free(internalContext->pixels);
+		free(internalContext->pixels);
 	}
 
 	for (i = 0; i < internalContext->imageCount; i += 1)
 	{
 		if (!internalContext->images[i]->duplicateOf)
 		{
-			Cram_free(internalContext->images[i]->pixels);
+			free(internalContext->images[i]->pixels);
 		}
 
-		Cram_free(internalContext->images[i]->name);
-		Cram_free(internalContext->images[i]);
+		free(internalContext->images[i]->name);
+		free(internalContext->images[i]);
 	}
 
-	Cram_free(internalContext->name);
-	Cram_free(internalContext->images);
-	Cram_free(internalContext->imageDatas);
-	Cram_free(internalContext);
+	free(internalContext->name);
+	free(internalContext->images);
+	free(internalContext->imageDatas);
+	free(internalContext);
 }

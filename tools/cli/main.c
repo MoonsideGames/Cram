@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 	char *metadataFilename;
 	JsonBuilder *jsonBuilder;
 	Cram_ImageData *imageDatas;
-	uint32_t imageCount;
+	int32_t imageCount;
 	int32_t i;
 
 	/* Set defaults */
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 	/* output pixel data */
 
 	Cram_GetPixelData(context, &pixelData, &width, &height);
-	imageOutputFilename = Cram_malloc(strlen(createInfo.name) + 5);
+	imageOutputFilename = malloc(strlen(createInfo.name) + 5);
 	strcpy(imageOutputFilename, createInfo.name);
 	strcat(imageOutputFilename, ".png");
 
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
 	JsonBuilder_FinishArrayProperty(jsonBuilder);
 	JsonBuilder_Finish(jsonBuilder);
 
-	metadataFilename = Cram_malloc(strlen(createInfo.name) + 6);
+	metadataFilename = malloc(strlen(createInfo.name) + 6);
 	strcpy(metadataFilename, createInfo.name);
 	strcat(metadataFilename, ".json");
 
@@ -272,8 +272,8 @@ int main(int argc, char *argv[])
 	JsonBuilder_Destroy(jsonBuilder);
 	fclose(jsonOutput);
 
-	Cram_free(imageOutputFilename);
-	Cram_free(metadataFilename);
+	free(imageOutputFilename);
+	free(metadataFilename);
 	Cram_Destroy(context);
 
 	return 0;
