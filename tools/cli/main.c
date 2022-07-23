@@ -79,10 +79,6 @@ static void dirwalk(char *dir)
 			{
 				Cram_AddFile(context, subname);
 			}
-			else
-			{
-				fprintf(stdout, "skipping %s\n", subname);
-			}
 		}
 	}
 
