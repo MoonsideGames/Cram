@@ -1,4 +1,4 @@
-/* Cram - A texture atlas system in C
+/* Cram - A texture packing system in C
  *
  * Copyright (c) 2022 Evan Hemsley
  *
@@ -35,8 +35,36 @@
 #define CRAMCALL
 #endif
 
-#ifdef USE_SDL2
-#include <SDL.h>
+#include <stdint.h>
+
+#ifdef _MSC_VER
+
+#include <assert.h>
+#include <stdlib.h>
+#include <search.h>
+#include <string.h>
+
+#endif /* _MSC_VER */
+
+/* TODO: ifndefs here? */
+#define Cram_assert assert
+#define Cram_qsort qsort
+#define Cram_malloc malloc
+#define Cram_realloc realloc
+#define Cram_free free
+#define Cram_memcpy memcpy
+#define Cram_memset memset
+#define Cram_strdup strdup
+#define Cram_abs abs
+#define Cram_min min
+#define Cram_max max
+
+#ifdef _WIN32
+#define SEPARATOR '\\'
+#endif
+
+#ifdef __unix__
+#define SEPARATOR '/'
 #endif
 
 #ifdef __cplusplus
@@ -48,13 +76,53 @@ extern "C"
 #define CRAM_MINOR_VERSION 1
 #define CRAM_PATCH_VERSION 0
 
-#define WELLSPRING_COMPILED_VERSION ( \
+#define CRAM_COMPILED_VERSION ( \
 	(CRAM_MAJOR_VERSION * 100 * 100) + \
 	(CRAM_MINOR_VERSION * 100) + \
 	(CRAM_PATCH_VERSION) \
 )
 
 CRAMAPI uint32_t Cram_LinkedVersion(void);
+
+/* Type definitions */
+
+typedef struct Cram_Context Cram_Context;
+
+typedef struct Cram_ContextCreateInfo
+{
+	const char *name;
+	uint32_t maxDimension;
+	int32_t padding;
+	uint8_t trim;
+} Cram_ContextCreateInfo;
+
+typedef struct Cram_ImageData
+{
+	char *name;
+
+	int32_t x;
+	int32_t y;
+	int32_t width;
+	int32_t height;
+
+	int32_t trimOffsetX;
+	int32_t trimOffsetY;
+	int32_t untrimmedWidth;
+	int32_t untrimmedHeight;
+} Cram_ImageData;
+
+/* API definition */
+
+CRAMAPI Cram_Context* Cram_Init(Cram_ContextCreateInfo *createInfo);
+
+CRAMAPI void Cram_AddFile(Cram_Context *context, const char *path);
+
+CRAMAPI int8_t Cram_Pack(Cram_Context *context);
+
+CRAMAPI void Cram_GetPixelData(Cram_Context *context, uint8_t **pPixelData, uint32_t *pWidth, uint32_t *pHeight);
+CRAMAPI void Cram_GetMetadata(Cram_Context *context, Cram_ImageData **pImage, uint32_t *pImageCount);
+
+CRAMAPI void Cram_Destroy(Cram_Context *context);
 
 #ifdef __cplusplus
 }

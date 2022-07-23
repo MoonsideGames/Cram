@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(Cram C)
 
+option(BUILD_CLI "Build command line executable" ON)
 option(BUILD_SHARED_LIBS "Build shared library" ON)
-option(USE_SDL2 "Use SDL2" ON)
 
 SET(LIB_MAJOR_VERSION "0")
 SET(LIB_MINOR_VERSION "3")
@@ -38,17 +38,44 @@ if(UNIX)
 	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 endif()
 
-if(USE_SDL2)
-	add_definitions(-DUSE_SDL2)
+if (WIN32)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-add_library(Cram
+file(GLOB SOURCE_FILES
 	#Public header
 	include/cram.h
 	#Source
-	lib/stb_rect_pack.h
+	lib/stb_image.h
+	lib/stb_ds.h
 	src/cram.c
 )
+
+set(LINKSTYLE PRIVATE)
+if(BUILD_SHARED_LIBS)
+	set(LINKSTYLE PUBLIC)
+endif()
+
+if(BUILD_CLI)
+	add_executable(cramcli
+		tools/cli/lib/dirent.h
+		tools/cli/lib/stb_image_write.h
+		tools/cli/json_writer.h
+		tools/cli/main.c
+	)
+
+	if(BUILD_SHARED_LIBS)
+		target_link_libraries(cramcli PUBLIC Cram)
+	else()
+		target_link_libraries(cramcli PRIVATE Cram)
+	endif()
+endif()
+
+if(BUILD_SHARED_LIBS)
+	add_library(Cram SHARED ${SOURCE_FILES})
+else()
+	add_library(Cram STATIC ${SOURCE_FILES})
+endif()
 
 # Build flags
 if(NOT MSVC)
@@ -60,6 +87,7 @@ target_include_directories(Cram PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tools/cli/lib>
 )
 
 # Soname
@@ -67,26 +95,3 @@ set_target_properties(Cram PROPERTIES OUTPUT_NAME "Cram"
 	VERSION ${LIB_VERSION}
 	SOVERSION ${LIB_MAJOR_VERSION}
 )
-
-# SDL2 Dependency
-if(USE_SDL2)
-	if (DEFINED SDL2_INCLUDE_DIRS AND DEFINED SDL2_LIBRARIES)
-		message(STATUS "using pre-defined SDL2 variables SDL2_INCLUDE_DIRS and SDL2_LIBRARIES")
-		target_include_directories(Cram PUBLIC "$<BUILD_INTERFACE:${SDL2_INCLUDE_DIRS}>")
-		target_link_libraries(Cram PUBLIC ${SDL2_LIBRARIES})
-	else()
-		# Only try to autodetect if both SDL2 variables aren't explicitly set
-		find_package(SDL2 CONFIG)
-		if (TARGET SDL2::SDL2)
-			message(STATUS "using TARGET SDL2::SDL2")
-			target_link_libraries(Cram PUBLIC SDL2::SDL2)
-		elseif (TARGET SDL2)
-			message(STATUS "using TARGET SDL2")
-			target_link_libraries(Cram PUBLIC SDL2)
-		else()
-			message(STATUS "no TARGET SDL2::SDL2, or SDL2, using variables")
-			target_include_directories(Cram PUBLIC "$<BUILD_INTERFACE:${SDL2_INCLUDE_DIRS}>")
-			target_link_libraries(Cram PUBLIC ${SDL2_LIBRARIES})
-		endif()
-	endif()
-endif()
