@@ -26,11 +26,6 @@
 
 #include "cram.h"
 
-#define STBI_ASSERT assert
-#define STBI_MALLOC malloc
-#define STBI_REALLOC realloc
-#define STBI_FREE free
-
 #define STBI_ONLY_PNG
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -40,10 +35,6 @@
 
 #define INITIAL_DATA_CAPACITY 8
 #define INITIAL_FREE_RECTANGLE_CAPACITY 16
-
-#define STBDS_SIZE_T_BITS           ((sizeof (size_t)) * 8)
-#define STBDS_ROTATE_LEFT(val, n)   (((val) << (n)) | ((val) >> (STBDS_SIZE_T_BITS - (n))))
-#define STBDS_ROTATE_RIGHT(val, n)  (((val) >> (n)) | ((val) << (STBDS_SIZE_T_BITS - (n))))
 
 /* Structures */
 
