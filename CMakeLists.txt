@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(Cram C)
 
 option(BUILD_CLI "Build command line executable" ON)
-option(BUILD_SHARED_LIBS "Build shared library" ON)
+option(BUILD_SHARED_LIBS "Build shared library" OFF)
 
 SET(LIB_MAJOR_VERSION "0")
 SET(LIB_MINOR_VERSION "3")
