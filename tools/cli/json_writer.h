@@ -58,7 +58,7 @@ JsonBuilder* JsonBuilder_Init()
 
 void JsonBuilder_Internal_MaybeExpand(JsonBuilder *builder, size_t len)
 {
-	if (builder->capacity < builder->index + len)
+	if (builder->capacity < builder->index + len + 1)
 	{
 		builder->capacity = max(builder->index + len, builder->capacity * 2);
 		builder->string = realloc(builder->string, builder->capacity);
