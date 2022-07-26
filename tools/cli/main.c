@@ -112,12 +112,16 @@ int main(int argc, char *argv[])
 	char *arg;
 	char *inputDirPath = NULL;
 	char *outputDirPath = NULL;
+	char separatorString[2];
 	char *imageOutputFilename;
 	char *metadataFilename;
 	JsonBuilder *jsonBuilder;
 	Cram_ImageData *imageDatas;
 	int32_t imageCount;
 	int32_t i;
+
+	separatorString[0] = SEPARATOR;
+	separatorString[1] = '\0';
 
 	/* Set defaults */
 	createInfo.padding = 0;
@@ -213,8 +217,10 @@ int main(int argc, char *argv[])
 	/* output pixel data */
 
 	Cram_GetPixelData(context, &pixelData, &width, &height);
-	imageOutputFilename = malloc(strlen(createInfo.name) + 5);
-	strcpy(imageOutputFilename, createInfo.name);
+	imageOutputFilename = malloc(strlen(outputDirPath) + strlen(createInfo.name) + 6);
+	strcpy(imageOutputFilename, outputDirPath);
+	strcat(imageOutputFilename, separatorString);
+	strcat(imageOutputFilename, createInfo.name);
 	strcat(imageOutputFilename, ".png");
 
 	stbi_write_png(
@@ -252,8 +258,10 @@ int main(int argc, char *argv[])
 	JsonBuilder_FinishArrayProperty(jsonBuilder);
 	JsonBuilder_Finish(jsonBuilder);
 
-	metadataFilename = malloc(strlen(createInfo.name) + 6);
-	strcpy(metadataFilename, createInfo.name);
+	metadataFilename = malloc(strlen(outputDirPath) + strlen(createInfo.name) + 7);
+	strcpy(metadataFilename, outputDirPath);
+	strcat(metadataFilename, separatorString);
+	strcat(metadataFilename, createInfo.name);
 	strcat(metadataFilename, ".json");
 
 	FILE *jsonOutput = fopen(metadataFilename, "w");
