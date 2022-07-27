@@ -85,7 +85,7 @@ typedef struct Cram_ContextCreateInfo
 
 typedef struct Cram_ImageData
 {
-	char *name;
+	char *path;
 
 	int32_t x;
 	int32_t y;

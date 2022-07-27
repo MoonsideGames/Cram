@@ -49,7 +49,7 @@ typedef struct Cram_Image Cram_Image;
 
 struct Cram_Image
 {
-	char *name;
+	char *path;
 	Rect originalRect;
 	Rect trimmedRect;
 	Rect packedRect;
@@ -531,7 +531,7 @@ void Cram_AddFile(Cram_Context *context, const char *path)
 
 	image = malloc(sizeof(Cram_Image));
 
-	image->name = Cram_Internal_GetImageName(path);
+	image->path = strdup(path);
 
 	pixels = stbi_load(
 		path,
@@ -769,12 +769,12 @@ int8_t Cram_Pack(Cram_Context *context)
 		internalContext->imageDatas[i].width = image->trimmedRect.w;
 		internalContext->imageDatas[i].height = image->trimmedRect.h;
 
-		internalContext->imageDatas[i].trimOffsetX = image->trimmedRect.x - image->originalRect.x;
-		internalContext->imageDatas[i].trimOffsetY = image->trimmedRect.y - image->originalRect.y;
+		internalContext->imageDatas[i].trimOffsetX = image->originalRect.x - image->trimmedRect.x;
+		internalContext->imageDatas[i].trimOffsetY = image->originalRect.y - image->trimmedRect.y;
 		internalContext->imageDatas[i].untrimmedWidth = image->originalRect.w;
 		internalContext->imageDatas[i].untrimmedHeight = image->originalRect.h;
 
-		internalContext->imageDatas[i].name = strdup(internalContext->images[i]->name);
+		internalContext->imageDatas[i].path = strdup(internalContext->images[i]->path);
 	}
 
 	free(packerRects);
@@ -815,7 +815,7 @@ void Cram_Destroy(Cram_Context *context)
 			free(internalContext->images[i]->pixels);
 		}
 
-		free(internalContext->images[i]->name);
+		free(internalContext->images[i]->path);
 		free(internalContext->images[i]);
 	}
 

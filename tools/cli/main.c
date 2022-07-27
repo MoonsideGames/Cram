@@ -103,6 +103,34 @@ uint8_t check_dir_exists(char *path)
 	}
 }
 
+static char* relative_path(char *fullPath, char *inputDir)
+{
+	int32_t index = 0;
+
+	while (fullPath[index] == inputDir[index])
+	{
+		index += 1;
+	}
+
+	return &fullPath[index + 1]; /* add one to remove separator */
+}
+
+static char* replace(char *string, char character, char newCharacter)
+{
+	int32_t i = 0;
+	size_t len = strlen(string);
+
+	for (i = 0; i < len; i += 1)
+	{
+		if (string[i] == character)
+		{
+			string[i] = newCharacter;
+		}
+	}
+
+	return string;
+}
+
 int main(int argc, char *argv[])
 {
 	Cram_ContextCreateInfo createInfo;
@@ -244,7 +272,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < imageCount; i += 1)
 	{
 		JsonBuilder_StartObject(jsonBuilder);
-		JsonBuilder_AppendStringProperty(jsonBuilder, "Name", imageDatas[i].name);
+		JsonBuilder_AppendStringProperty(jsonBuilder, "Name", replace(relative_path(imageDatas[i].path, inputDirPath), '\\', '/'));
 		JsonBuilder_AppendIntProperty(jsonBuilder, "X", imageDatas[i].x);
 		JsonBuilder_AppendIntProperty(jsonBuilder, "Y", imageDatas[i].y);
 		JsonBuilder_AppendIntProperty(jsonBuilder, "W", imageDatas[i].width);
