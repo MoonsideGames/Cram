@@ -141,13 +141,13 @@ static inline int32_t Cram_Internal_GetPixelIndex(int32_t x, int32_t y, int32_t 
 	return x + y * width;
 }
 
-static uint8_t Cram_Internal_IsRowClear(int32_t* pixels, int32_t rowIndex, int32_t width)
+static uint8_t Cram_Internal_IsRowClear(uint32_t* pixels, int32_t rowIndex, int32_t width)
 {
 	int32_t i;
 
 	for (i = 0; i < width; i += 1)
 	{
-		if ((pixels[Cram_Internal_GetPixelIndex(i, rowIndex, width)] & 0xFF) > 0)
+		if ((pixels[Cram_Internal_GetPixelIndex(i, rowIndex, width)] & 0xFF000000) > 0)
 		{
 			return 0;
 		}
@@ -156,13 +156,13 @@ static uint8_t Cram_Internal_IsRowClear(int32_t* pixels, int32_t rowIndex, int32
 	return 1;
 }
 
-static uint8_t Cram_Internal_IsColumnClear(int32_t* pixels, int32_t columnIndex, int32_t width, int32_t height)
+static uint8_t Cram_Internal_IsColumnClear(uint32_t* pixels, int32_t columnIndex, int32_t width, int32_t height)
 {
 	int32_t i;
 
 	for (i = 0; i < height; i += 1)
 	{
-		if ((pixels[Cram_Internal_GetPixelIndex(columnIndex, i, width)] & 0xFF) > 0)
+		if ((pixels[Cram_Internal_GetPixelIndex(columnIndex, i, width)] & 0xFF000000) > 0)
 		{
 			return 0;
 		}
