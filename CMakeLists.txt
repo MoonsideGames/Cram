@@ -64,7 +64,7 @@ if(BUILD_CLI)
 	)
 
 	if(WIN32)
-		list(APPEND CLI_SOURCES tools/cli/lib/dirent.h)
+		list(APPEND CLI_SOURCES tools/cli/lib/windows/dirent.h)
 	endif()
 
 	add_executable(cramcli ${CLI_SOURCES})
