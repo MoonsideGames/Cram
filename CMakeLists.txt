@@ -57,17 +57,26 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 if(BUILD_CLI)
-	add_executable(cramcli
-		tools/cli/lib/dirent.h
+	file(GLOB CLI_SOURCES
 		tools/cli/lib/stb_image_write.h
 		tools/cli/json_writer.h
 		tools/cli/main.c
 	)
 
+	if(WIN32)
+		list(APPEND CLI_SOURCES tools/cli/lib/dirent.h)
+	endif()
+
+	add_executable(cramcli ${CLI_SOURCES})
+
 	if(BUILD_SHARED_LIBS)
 		target_link_libraries(cramcli PUBLIC Cram)
 	else()
 		target_link_libraries(cramcli PRIVATE Cram)
+	endif()
+
+	if(WIN32)
+		target_include_directories(cramcli PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tools/cli/lib/windows>)
 	endif()
 endif()
 
@@ -80,6 +89,7 @@ endif()
 # Build flags
 if(NOT MSVC)
 	set_property(TARGET Cram PROPERTY COMPILE_FLAGS "-std=gnu99 -Wall -Wno-strict-aliasing -pedantic")
+	target_link_libraries(Cram PUBLIC m)
 endif()
 
 # includes

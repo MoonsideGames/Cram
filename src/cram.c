@@ -104,19 +104,6 @@ typedef struct PackScoreInfo
 
 /* Pixel data functions */
 
-/* https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2 */
-static uint32_t Cram_Internal_NextPowerOfTwo(uint32_t v)
-{
-	v--;
-	v |= v >> 1;
-	v |= v >> 2;
-	v |= v >> 4;
-	v |= v >> 8;
-	v |= v >> 16;
-	v++;
-	return v;
-}
-
 static uint8_t Cram_Internal_IsImageEqual(Cram_Image *a, Cram_Image *b)
 {
 	int32_t i;
@@ -497,21 +484,6 @@ Cram_Context* Cram_Init(Cram_ContextCreateInfo *createInfo)
 	context->maxDimension = createInfo->maxDimension;
 
 	return (Cram_Context*) context;
-}
-
-static char* Cram_Internal_GetImageName(const char *path)
-{
-	char *lastSeparator = strrchr(path, SEPARATOR) + 1;
-	size_t returnBytes = strlen(lastSeparator) + 1;
-	char *name = malloc(returnBytes);
-	int32_t i;
-
-	for (i = 0; i < returnBytes; i += 1)
-	{
-		name[i] = lastSeparator[i];
-	}
-
-	return name;
 }
 
 void Cram_AddFile(Cram_Context *context, const char *path)

@@ -24,8 +24,8 @@
  *
  */
 
+#include <dirent.h>
 #include "cram.h"
-#include "dirent.h"
 #include "json_writer.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -48,7 +48,7 @@ static const char* GetFilenameExtension(const char *filename)
 /* Mostly taken from K&R C 2nd edition page 182 */
 static void dirwalk(char *dir)
 {
-	dirent *dp;
+	struct dirent *dp;
 	DIR *dfd;
 	char subname[2048];
 
@@ -135,8 +135,8 @@ int main(int argc, char *argv[])
 {
 	Cram_ContextCreateInfo createInfo;
 	uint8_t *pixelData;
-	uint32_t width;
-	uint32_t height;
+	int32_t width;
+	int32_t height;
 	char *arg;
 	char *inputDirPath = NULL;
 	char *outputDirPath = NULL;
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	fprintf(jsonOutput, jsonBuilder->string);
+	fprintf(jsonOutput, "%s", jsonBuilder->string);
 
 	JsonBuilder_Destroy(jsonBuilder);
 	fclose(jsonOutput);

@@ -29,6 +29,8 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define INITIAL_JSON_OUTPUT_CAPACITY 2048
 
@@ -114,7 +116,7 @@ void JsonBuilder_AppendStringProperty(JsonBuilder *builder, char *propertyName, 
 void JsonBuilder_AppendIntProperty(JsonBuilder *builder, char *propertyName, int32_t value)
 {
 	char buffer[65];
-	itoa(value, buffer, 10);
+	sprintf(buffer, "%d", value);
 	JsonBuilder_AppendProperty(builder, propertyName, buffer, 0);
 }
 
