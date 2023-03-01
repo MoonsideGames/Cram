@@ -107,8 +107,11 @@ typedef struct PackScoreInfo
 static uint8_t Cram_Internal_IsImageEqual(Cram_Image *a, Cram_Image *b)
 {
 	int32_t i;
-	if (a->hash == b->hash && a->trimmedRect.w == b->trimmedRect.w && a->trimmedRect.h == b->trimmedRect.h)
-	{
+	if (
+		a->hash == b->hash &&
+		a->trimmedRect.w == b->trimmedRect.w &&
+		a->trimmedRect.h == b->trimmedRect.h
+	) {
 		for (i = 0; i < a->trimmedRect.w * a->trimmedRect.h * 4; i += 1)
 		{
 			if (a->pixels[i] != b->pixels[i])
@@ -729,17 +732,20 @@ int8_t Cram_Pack(Cram_Context *context)
 
 		if (internalContext->images[i]->duplicateOf)
 		{
-			image = internalContext->images[i]->duplicateOf;
+			internalContext->imageDatas[i].x = internalContext->images[i]->duplicateOf->packedRect.x;
+			internalContext->imageDatas[i].y = internalContext->images[i]->duplicateOf->packedRect.y;
+			internalContext->imageDatas[i].width = internalContext->images[i]->duplicateOf->trimmedRect.w;
+			internalContext->imageDatas[i].height = internalContext->images[i]->duplicateOf->trimmedRect.h;
 		}
 		else
 		{
-			image = internalContext->images[i];
+			internalContext->imageDatas[i].x = internalContext->images[i]->packedRect.x;
+			internalContext->imageDatas[i].y = internalContext->images[i]->packedRect.y;
+			internalContext->imageDatas[i].width = internalContext->images[i]->trimmedRect.w;
+			internalContext->imageDatas[i].height = internalContext->images[i]->trimmedRect.h;
 		}
 
-		internalContext->imageDatas[i].x = image->packedRect.x;
-		internalContext->imageDatas[i].y = image->packedRect.y;
-		internalContext->imageDatas[i].width = image->trimmedRect.w;
-		internalContext->imageDatas[i].height = image->trimmedRect.h;
+		image = internalContext->images[i];
 
 		internalContext->imageDatas[i].trimOffsetX = image->originalRect.x - image->trimmedRect.x;
 		internalContext->imageDatas[i].trimOffsetY = image->originalRect.y - image->trimmedRect.y;
