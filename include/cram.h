@@ -67,8 +67,8 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#define CRAM_MAJOR_VERSION 0
-#define CRAM_MINOR_VERSION 1
+#define CRAM_MAJOR_VERSION 1
+#define CRAM_MINOR_VERSION 0
 #define CRAM_PATCH_VERSION 0
 
 #define CRAM_COMPILED_VERSION ( \
