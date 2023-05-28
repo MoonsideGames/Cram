@@ -10,6 +10,7 @@ steps:
     - cd ./build
     - cmake -DCMAKE_C_COMPILER=/usr/bin/clang -S .. -B .
     - make
+    - mv ./cramcli ./cramcli-linux-amd64
 
 - name: build-windows
   image: thatcosmonaut/moonworks-build
