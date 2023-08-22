@@ -27,7 +27,7 @@ steps:
     api_key:
       from_secret: gitea_token
     files:
-      - ./build/cramcli
+      - ./build/cramcli-linux-amd64
       - ./windows-build/cramcli.exe
   when:
     event: tag
