@@ -89,7 +89,7 @@ static void dirwalk(char *dir)
 
 void print_help()
 {
-	fprintf(stdout, "Usage: cram input_dir output_dir atlas_name [--padding padding_value] [--notrim] [--dimension max_dimension]");
+	fprintf(stdout, "Usage: cram input_dir output_dir atlas_name [--padding padding_value] [--premultiply] [--notrim] [--dimension max_dimension]");
 }
 
 uint8_t check_dir_exists(char *path)
@@ -137,6 +137,8 @@ int main(int argc, char *argv[])
 	uint8_t *pixelData;
 	int32_t width;
 	int32_t height;
+	uint8_t premultiply;
+	uint8_t alpha;
 	char *arg;
 	char *inputDirPath = NULL;
 	char *outputDirPath = NULL;
@@ -156,6 +158,7 @@ int main(int argc, char *argv[])
 	createInfo.trim = 1;
 	createInfo.maxDimension = 8192;
 	createInfo.name = NULL;
+	premultiply = 0;
 
 	if (argc < 2)
 	{
@@ -176,6 +179,10 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "Padding must be equal to or greater than 0!");
 				return 1;
 			}
+		}
+		else if (strcmp(arg, "--premultiply") == 0)
+		{
+			premultiply = 1;
 		}
 		else if (strcmp(arg, "--notrim") == 0)
 		{
@@ -245,6 +252,19 @@ int main(int argc, char *argv[])
 	/* output pixel data */
 
 	Cram_GetPixelData(context, &pixelData, &width, &height);
+
+	if (premultiply)
+	{
+		for (i = 0; i < width * height * 4; i += 4)
+		{
+			alpha = pixelData[i + 3];
+
+			pixelData[i + 0] = (uint8_t) (((uint32_t) (pixelData[i + 0]) * alpha) / 255);
+			pixelData[i + 1] = (uint8_t) (((uint32_t) (pixelData[i + 1]) * alpha) / 255);
+			pixelData[i + 2] = (uint8_t) (((uint32_t) (pixelData[i + 2]) * alpha) / 255);
+		}
+	}
+
 	imageOutputFilename = malloc(strlen(outputDirPath) + strlen(createInfo.name) + 6);
 	strcpy(imageOutputFilename, outputDirPath);
 	strcat(imageOutputFilename, separatorString);
