@@ -56,6 +56,12 @@ if(BUILD_SHARED_LIBS)
 	set(LINKSTYLE PUBLIC)
 endif()
 
+if(BUILD_SHARED_LIBS)
+	add_library(Cram SHARED ${SOURCE_FILES})
+else()
+	add_library(Cram STATIC ${SOURCE_FILES})
+endif()
+
 if(BUILD_CLI)
 	file(GLOB CLI_SOURCES
 		tools/cli/lib/stb_image_write.h
@@ -80,11 +86,6 @@ if(BUILD_CLI)
 	endif()
 endif()
 
-if(BUILD_SHARED_LIBS)
-	add_library(Cram SHARED ${SOURCE_FILES})
-else()
-	add_library(Cram STATIC ${SOURCE_FILES})
-endif()
 
 # Build flags
 if(NOT MSVC)

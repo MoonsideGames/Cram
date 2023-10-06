@@ -17,7 +17,7 @@ steps:
   commands:
     - cmake -E make_directory ./windows-build
     - cd ./windows-build
-    - mingw64-cmake -S .. -B .
+    - mingw64-cmake -DBUILD_SHARED_LIBS=OFF -S .. -B .
     - make
 
 - name: gitea_release
