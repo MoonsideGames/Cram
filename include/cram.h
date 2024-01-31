@@ -54,6 +54,10 @@
 #define SEPARATOR '/'
 #endif
 
+#ifdef __APPLE__
+#define SEPARATOR '/'
+#endif
+
 #ifndef max
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #endif
